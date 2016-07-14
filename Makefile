@@ -46,7 +46,13 @@ install: all
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f slock ${DESTDIR}${PREFIX}/bin
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/slock
-	@chmod u+s ${DESTDIR}${PREFIX}/bin/slock
+	@if [ $$(grep ^ID /etc/os-release) = 'ID=debian' ]; then \
+	  chgrp shadow ${DESTDIR}${PREFIX}/bin/slock; \
+	  chmod g+s ${DESTDIR}${PREFIX}/bin/slock ; \
+	  setcap cap_sys_resource,cap_dac_override+ep /usr/local/bin/slock ; \
+	else \
+	  chmod u+s ${DESTDIR}${PREFIX}/bin/slock; \
+	fi
 	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
 	@mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	@sed "s/VERSION/${VERSION}/g" <slock.1 >${DESTDIR}${MANPREFIX}/man1/slock.1
